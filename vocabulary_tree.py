@@ -8,6 +8,101 @@ from node import Node
 from image import read_images, read_image, image_descriptors_map, image_descriptors, image_descriptors_from_file
 
 
+class VocabTree:
+    """
+    Vocabulary Tree for image retrieval
+    
+    Attributes:
+        root: The root node of the vocabulary tree
+        visit_matrix: The database image visit matrix
+    """
+    
+    def __init__(self, root: Node, visit_matrix: np.ndarray):
+        """
+        Initialize a vocabulary tree
+        
+        Args:
+            root: The root node of the vocabulary tree
+            visit_matrix: The database image visit matrix
+        """
+        self._root = root
+        self._visit_matrix = visit_matrix
+        
+    @property
+    def root(self) -> Node:
+        """Get the root node"""
+        return self._root
+        
+    @property
+    def visit_matrix(self) -> np.ndarray:
+        """Get the database image visit matrix"""
+        return self._visit_matrix
+
+
+def train_voctree(
+    filenames: List[str], 
+    image_descriptor_extractor: cv2.Feature2D, 
+    clusters: int, 
+    max_level: int
+) -> VocabTree:
+    """
+    Trains vocabulary tree based on input images
+    
+    Args:
+        filenames: List of image file paths
+        image_descriptor_extractor: OpenCV feature extractor (e.g., ORB, SIFT)
+        clusters: Number of clusters for tree branching
+        max_level: Maximum depth of the vocabulary tree
+        
+    Returns:
+        VocabTree object containing the root node and database visit matrix
+    """
+    # Initialize node system
+    Node.init()
+
+    # Set number of images
+    Node.set_total_images(len(filenames))
+    
+    # Read all images and extract features
+    images = read_images(filenames, black_white=True)
+    print('number of images='+str(len(images)))
+    
+    # Extract descriptors from database images
+    db_descriptors_map = image_descriptors_map(images, descr_extractor=image_descriptor_extractor)
+    db_descriptors = image_descriptors(db_descriptors_map)
+    print('number of descriptors='+str(db_descriptors.shape[0]))
+    
+    # Create root node
+    root = Node(root=True)
+    
+    # Build tree structure
+    root.children = assembly_tree(
+        descriptors=db_descriptors, 
+        k=clusters, 
+        dissimilarity=orb_dissimilarity, 
+        average=orb_average, 
+        level=max_level
+    )
+    print('number of nodes:' + str(len(Node.nodes())))
+    
+    # Update weights in the tree
+    for imgkey in db_descriptors_map:
+        print("update weights for image = " + str(imgkey))
+        update_weights(root, imgkey, db_descriptors_map[imgkey], dissimilarity=orb_dissimilarity)
+    
+    # Create database visit matrix
+    db_visit_matrix = dbimg_visit_tree(
+        root, 
+        images, 
+        dissimilarity=orb_dissimilarity, 
+        with_weight=True, 
+        descr_extractor=image_descriptor_extractor
+    )
+    print('database image vector size = '+str(db_visit_matrix.shape))
+    
+    return VocabTree(root=root, visit_matrix=db_visit_matrix)
+
+
 def tree_traversal(node: Node) -> None:
     print('node.images='+str(node.images) + ' node.children='+str(len(node.children)))
     for child_id in node.children:

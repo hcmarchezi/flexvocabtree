@@ -12,7 +12,9 @@ from vocabulary_tree import (
     score_calculation,
     dbimg_visit_tree,
     orb_dissimilarity,
-    orb_average
+    orb_average,
+    VocabTree,
+    train_voctree
 )
 
 
@@ -43,71 +45,6 @@ def brute_force_image_descriptors(query_file: str,
     return distances
 
 
-def train_voctree(
-    filenames: List[str], 
-    image_descriptor_extractor: cv2.Feature2D, 
-    clusters: int, 
-    max_level: int
-) -> Tuple[Node, np.ndarray]:
-    """
-    Trains vocabulary tree based on input images
-    
-    Args:
-        filenames: List of image file paths
-        image_descriptor_extractor: OpenCV feature extractor (e.g., ORB, SIFT)
-        clusters: Number of clusters for tree branching
-        max_level: Maximum depth of the vocabulary tree
-        
-    Returns:
-        Tuple containing:
-        - root node of the vocabulary tree
-        - database image visit matrix
-    """
-
-    # Initialize node system
-    Node.init()
-
-    # Set number of images
-    Node.set_total_images(len(filenames))
-    
-    # Read all images and extrac features
-    images = read_images(filenames, black_white=True)
-    print('number of images='+str(len(images)))
-    
-    # Extract descriptors from database images
-    db_descriptors_map = image_descriptors_map(images, descr_extractor=image_descriptor_extractor)
-    db_descriptors = image_descriptors(db_descriptors_map)
-    print('number of descriptors='+str(db_descriptors.shape[0]))
-    
-    # Create root node
-    root = Node(root=True)
-    
-    # Build tree structure
-    root.children = assembly_tree(
-        descriptors=db_descriptors, 
-        k=clusters, 
-        dissimilarity=orb_dissimilarity, 
-        average=orb_average, 
-        level=max_level
-    )
-    print('number of nodes:' + str(len(Node.nodes())))
-    
-    # Update weights in the tree
-    for imgkey in db_descriptors_map:
-        print("update weights for image = " + str(imgkey))
-        update_weights(root, imgkey, db_descriptors_map[imgkey], dissimilarity=orb_dissimilarity)
-    
-    # Create database visit matrix
-    db_visit_matrix = dbimg_visit_tree(
-        root, 
-        images, 
-        dissimilarity=orb_dissimilarity, 
-        with_weight=True, 
-        descr_extractor=image_descriptor_extractor
-    )
-    print('database image vector size = '+str(db_visit_matrix.shape))
-    
-    return root, db_visit_matrix
 
 
 def display_comparison_table(query_files, filenames, root, db_visit_matrix, orb_extractor, orb_dissimilarity):
@@ -164,12 +101,16 @@ def main():
     max_level = 6 
     
     # Train vocabulary tree
-    root, db_visit_matrix = train_voctree(
+    voc_tree = train_voctree(
         filenames=filenames,
         image_descriptor_extractor=orb_extractor,
         clusters=clusters,
         max_level=max_level
     )
+    
+    # Extract root and visit_matrix from VocabTree object
+    root = voc_tree.root
+    db_visit_matrix = voc_tree.visit_matrix
     
     
     for idx_file, query_file in enumerate(query_files): 
