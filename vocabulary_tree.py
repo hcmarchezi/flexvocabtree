@@ -17,16 +17,18 @@ class VocabTree:
         visit_matrix: The database image visit matrix
     """
     
-    def __init__(self, root: Node, visit_matrix: np.ndarray):
+    def __init__(self, root: Node, visit_matrix: np.ndarray, database_filenames: List[str]):
         """
         Initialize a vocabulary tree
         
         Args:
             root: The root node of the vocabulary tree
             visit_matrix: The database image visit matrix
+            database_filenames: Database filenames
         """
         self._root = root
         self._visit_matrix = visit_matrix
+        self._database_filenames = database_filenames
         
     @property
     def root(self) -> Node:
@@ -37,6 +39,10 @@ class VocabTree:
     def visit_matrix(self) -> np.ndarray:
         """Get the database image visit matrix"""
         return self._visit_matrix
+
+    @property
+    def database_filenames(self) -> List[str]:
+        return self._database_filenames
 
 
 def train_voctree(
@@ -100,7 +106,7 @@ def train_voctree(
     )
     print('database image vector size = '+str(db_visit_matrix.shape))
     
-    return VocabTree(root=root, visit_matrix=db_visit_matrix)
+    return VocabTree(root=root, visit_matrix=db_visit_matrix, database_filenames=filenames)
 
 
 def tree_traversal(node: Node) -> None:

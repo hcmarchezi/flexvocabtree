@@ -16,11 +16,12 @@ from vocabulary_tree import (
     VocabTree,
     train_voctree
 )
+from pipeline import Pipeline
+from columnar import columnar
 
 
-def brute_force_image_descriptors(query_file: str,
-                                 filenames: List[str],
-                                 descr_extractor: cv2.Feature2D) -> Dict[float, str]:
+
+def brute_force_image_descriptors(query_file: str, filenames: List[str], descr_extractor: cv2.Feature2D) -> Dict[float, str]:
     # Read the query image and extract its descriptors
     query_img_descriptors = image_descriptors_from_file(query_file, descr_extractor=descr_extractor)
     
@@ -45,40 +46,6 @@ def brute_force_image_descriptors(query_file: str,
     return distances
 
 
-
-
-def display_comparison_table(query_files, filenames, root, db_visit_matrix, orb_extractor, orb_dissimilarity):
-    
-    for idx_file, query_file in enumerate(query_files): 
-        print('query_file='+str(query_file))
-        query_descriptors = image_descriptors_from_file(query_file, descr_extractor=orb_extractor)
-        query_vector = visit_tree(root, descriptors=query_descriptors, dissimilarity=orb_dissimilarity, with_weight=True)
-        
-        scores = {}
-        for idx, db_item_vector in enumerate(db_visit_matrix):
-            scores[score_calculation(query_vector, db_item_vector)] = filenames[idx]
-        
-        print('voctree results:')
-        idx_db = 2
-        for score in sorted(scores.keys()):
-            db_filename = scores[score]
-            print(f"* {db_filename} {score}")
-            idx_db += 1
-        
-        print()
-        print('ground truth:')
-        ground_truth = brute_force_image_descriptors(
-            query_file=query_file, 
-            filenames=filenames, 
-            descr_extractor=orb_extractor
-        )
-        idx_db = 2
-        for score in sorted(ground_truth.keys()):
-            ground_truth_filename = ground_truth[score]
-            print(f"* {ground_truth_filename} {score}")
-            idx_db += 1
-
-
 def main():
     filenames = list([ './imgdb/' + filename for filename in os.listdir('./imgdb/') ])
     print('database filenames')
@@ -94,56 +61,36 @@ def main():
     # Set image descriptor extractor
     orb_extractor = cv2.ORB_create(750)
     
-    # Number of clusters
-    clusters = 3
-    
-    # Tree max level
-    max_level = 6 
-    
     # Train vocabulary tree
     voc_tree = train_voctree(
         filenames=filenames,
         image_descriptor_extractor=orb_extractor,
-        clusters=clusters,
-        max_level=max_level
+        clusters=3,
+        max_level=6
     )
     
-    # Extract root and visit_matrix from VocabTree object
-    root = voc_tree.root
-    db_visit_matrix = voc_tree.visit_matrix
+    # Create pipeline to process queries
+    pipeline = Pipeline(
+        vocab_tree = voc_tree,
+        descr_extractor = orb_extractor,
+        dissimilarity = orb_dissimilarity
+    )
     
     
     for idx_file, query_file in enumerate(query_files): 
-        print('----------------------------------------------')
-        print('query_file='+str(query_file))
-        print('----------------------------------------------')
-        query_descriptors = image_descriptors_from_file(query_file, descr_extractor=orb_extractor)
-        query_vector = visit_tree(root, descriptors=query_descriptors, dissimilarity=orb_dissimilarity, with_weight=True)
+        scores = pipeline.execute(query_file)    
+        voctree_results = [ scores[score] for score in sorted(scores.keys()) ]
         
-        scores = {}
-        for idx, db_item_vector in enumerate(db_visit_matrix):
-            scores[score_calculation(query_vector, db_item_vector)] = filenames[idx]
-        
-        voctree_results = []
-        for score in sorted(scores.keys()):
-            db_filename = scores[score]
-            voctree_results.append(db_filename)
-        
-        ground_truth = brute_force_image_descriptors(
-            query_file=query_file, 
-            filenames=filenames, 
-            descr_extractor=orb_extractor
-        )
-        ground_truth_results = []
-        for score in sorted(ground_truth.keys()):
-            ground_truth_filename = ground_truth[score]
-            ground_truth_results.append(ground_truth_filename)
-            
-        for idx in range(len(scores)):
-            print("voctree = " + str(voctree_results[idx]))
+        ground_truth = brute_force_image_descriptors(query_file=query_file, filenames=filenames, descr_extractor=orb_extractor)
+        ground_truth_results = [ ground_truth[score] for score in sorted(ground_truth.keys()) ]
 
-    # Display comparison table
-    display_comparison_table(query_files, filenames, root, db_visit_matrix, orb_extractor, orb_dissimilarity)
+        data = []
+        for idx in range(len(voctree_results)):
+            data.append([ query_file, voctree_results[idx], ground_truth_results[idx] ])
+        table = columnar(data, headers=['Query File', 'VocabTree', 'GroundTruth'])
+        print(table)
+
+
 
 if __name__ == "__main__":
     main()
