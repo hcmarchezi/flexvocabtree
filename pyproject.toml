@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "flex-vocab-tree"
 version = "0.1.0"
@@ -10,3 +14,11 @@ dependencies = [
     "mypy>=1.15.0",
     "opencv-python>=4.11.0.86",
 ]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.5",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
