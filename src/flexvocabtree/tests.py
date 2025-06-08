@@ -5,7 +5,7 @@ from typing import Dict, List, Tuple, Callable, Optional, Any, Set, Union, Seque
 from cluster import clustering
 from weights import update_weights, _convert_to_img_descriptor, _nearest_descriptor
 from node import Node
-from image import read_images, read_image, image_descriptors_map, image_descriptors, image_descriptors_from_file
+from image import read_images, image_descriptors_map, image_descriptors, image_descriptors_from_file
 from vocabulary_tree import (
     assembly_tree,
     visit_tree,

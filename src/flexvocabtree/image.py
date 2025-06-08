@@ -2,21 +2,18 @@ import cv2
 import numpy as np
 from typing import Dict, List, Any
 
+
+def read_image(filename: str, black_white: bool = True) -> np.ndarray:
+    image_mode = cv2.IMREAD_GRAYSCALE if black_white else cv2.IMREAD_COLOR
+    image = cv2.imread(filename, image_mode)
+    return image
+
+
 def read_images(filenames: List[str], black_white: bool = True) -> List[np.ndarray]:
     images: List[np.ndarray] = []
     for filename in filenames:
         images.append(read_image(filename, black_white))
-    
     return images
-
-
-def read_image(filename: str, black_white: bool = True) -> np.ndarray:
-    if black_white:
-        image = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
-    else:
-        image = cv2.imread(filename, cv2.IMREAD_COLOR)
-        
-    return image
 
 
 def image_descriptors_map(images: List[np.ndarray], descr_extractor: Any) -> Dict[int, np.ndarray]:

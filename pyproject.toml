@@ -18,6 +18,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest>=8.3.5",
+    "pytest-mock>=3.14.1",
 ]
 
 [tool.setuptools.packages.find]
