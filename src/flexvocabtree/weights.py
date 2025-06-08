@@ -1,11 +1,13 @@
 import numpy as np
 from typing import List, Optional, Callable, Any
-from node import Node
+from flexvocabtree.node import Node
+
 
 def update_weights(node: Node, img_idx: int, arr_descriptors: np.ndarray, 
                  dissimilarity: Callable[[np.ndarray, np.ndarray], float]) -> None:
     for descriptor in arr_descriptors:
         _update_weights_with_descriptor(node, img_idx, descriptor, dissimilarity)
+
 
 # descriptor - query descriptor
 # arr_descriptors - array of descriptors

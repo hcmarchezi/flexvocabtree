@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
 from typing import Dict, Callable
-from vocabulary_tree import VocabTree, visit_tree, score_calculation
-from image import image_descriptors_from_file
+from flexvocabtree.vocabulary_tree import VocabTree, visit_tree, score_calculation
+from flexvocabtree.image import image_descriptors_from_file
 
 
 class Pipeline:

@@ -2,10 +2,10 @@ import cv2
 import numpy as np
 import os
 from typing import Dict, List, Tuple, Callable, Optional, Any, Set, Union, Sequence
-from cluster import clustering
-from weights import update_weights, _convert_to_img_descriptor, _nearest_descriptor
-from node import Node
-from image import read_images, image_descriptors_map, image_descriptors, image_descriptors_from_file
+from flexvocabtree.cluster import clustering
+from flexvocabtree.weights import update_weights, _convert_to_img_descriptor, _nearest_descriptor
+from flexvocabtree.node import Node
+from flexvocabtree.image import read_images, image_descriptors_map, image_descriptors, image_descriptors_from_file
 
 
 class VocabTree:
