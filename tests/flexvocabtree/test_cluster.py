@@ -1,6 +1,5 @@
 import pytest
 import numpy as np
-from typing import Dict, List, Tuple, Callable, Optional, Any, Union
 from flexvocabtree.cluster import clustering
 
 

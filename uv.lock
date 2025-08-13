@@ -78,12 +78,8 @@ dependencies = [
     { name = "matplotlib" },
     { name = "mypy" },
     { name = "opencv-python" },
-    { name = "pytest-mock" },
-]
-
-[package.optional-dependencies]
-dev = [
     { name = "pytest" },
+    { name = "pytest-mock" },
 ]
 
 [package.metadata]
@@ -92,10 +88,9 @@ requires-dist = [
     { name = "matplotlib", specifier = ">=3.10.1" },
     { name = "mypy", specifier = ">=1.15.0" },
     { name = "opencv-python", specifier = ">=4.11.0.86" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.3.5" },
+    { name = "pytest", specifier = ">=8.3.5" },
     { name = "pytest-mock", specifier = ">=3.14.1" },
 ]
-provides-extras = ["dev"]
 
 [[package]]
 name = "fonttools"

@@ -13,10 +13,6 @@ dependencies = [
     "matplotlib>=3.10.1",
     "mypy>=1.15.0",
     "opencv-python>=4.11.0.86",
-]
-
-[project.optional-dependencies]
-dev = [
     "pytest>=8.3.5",
     "pytest-mock>=3.14.1",
 ]
