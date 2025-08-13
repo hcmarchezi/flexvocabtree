@@ -175,8 +175,8 @@ def _descriptor_visit_tree(node: Node, descriptor: np.ndarray,
 # query_vector = vector of visits multiplied by weights from query image descriptors
 # dbimg_vector = vector of visits multiplied by weights from database image descriptors
 def score_calculation(query_vector: np.ndarray, dbimg_vector: np.ndarray) -> float:
-    norm_query_vector = query_vector / (np.sqrt(np.sum(np.power(query_vector, 2))))
-    norm_dbimg_vector = dbimg_vector / (np.sqrt(np.sum(np.power(dbimg_vector, 2))))
+    norm_query_vector = query_vector / np.linalg.norm(query_vector, ord=2)
+    norm_dbimg_vector = dbimg_vector / np.linalg.norm(dbimg_vector, ord=2)
     diff = np.abs(norm_query_vector - norm_dbimg_vector)
     return float(np.sqrt(np.sum(np.power(diff, 2))))
 
