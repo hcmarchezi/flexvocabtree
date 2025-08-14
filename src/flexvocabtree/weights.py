@@ -13,8 +13,8 @@ def update_weights(
 # descriptor - query descriptor
 # arr_descriptors - array of descriptors
 # return: descritor in arr_descriptors close to descriptor
-def _nearest_descriptor(descriptor: np.ndarray, arr_descriptors: List[np.ndarray], 
-                       dissimilarity: Callable[[np.ndarray, np.ndarray], float]) -> np.ndarray:
+def _nearest_descriptor(descriptor: np.ndarray, arr_descriptors: List[np.ndarray],
+                        dissimilarity: Callable[[np.ndarray, np.ndarray], float]) -> np.ndarray:
     min_dist: Optional[float] = None
     min_descriptor: Optional[np.ndarray] = None
     for descriptor_item in arr_descriptors:

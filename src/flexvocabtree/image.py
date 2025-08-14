@@ -34,10 +34,10 @@ def image_descriptors_map(images: List[np.ndarray], descr_extractor: Any) -> Dic
 
 def image_descriptors(image_descriptors_map: Dict[int, np.ndarray]) -> np.ndarray:
     img_descriptors: List[np.ndarray] = []
-    
+
     for img_key in image_descriptors_map:
         img_descriptors.extend(image_descriptors_map[img_key])
-        
+
     return np.array(img_descriptors, dtype=np.uint8)
 
 

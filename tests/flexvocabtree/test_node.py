@@ -38,4 +38,3 @@ def test_weight():
     node = Node()
     node.images = {1, 2}
     assert node.weight == np.log(10 / 2)
-

@@ -1,4 +1,4 @@
-import cv2 
+import cv2
 import numpy as np
 from typing import Dict, List, Callable, Any
 from flexvocabtree.cluster import clustering
@@ -10,16 +10,14 @@ from flexvocabtree.image import read_images, image_descriptors_map, image_descri
 class VocabTree:
     """
     Vocabulary Tree for image retrieval
-    
     Attributes:
         root: The root node of the vocabulary tree
         visit_matrix: The database image visit matrix
     """
-    
+
     def __init__(self, root: Node, visit_matrix: np.ndarray, database_filenames: List[str]):
         """
         Initialize a vocabulary tree
-        
         Args:
             root: The root node of the vocabulary tree
             visit_matrix: The database image visit matrix
@@ -28,12 +26,12 @@ class VocabTree:
         self._root = root
         self._visit_matrix = visit_matrix
         self._database_filenames = database_filenames
-        
+
     @property
     def root(self) -> Node:
         """Get the root node"""
         return self._root
-        
+
     @property
     def visit_matrix(self) -> np.ndarray:
         """Get the database image visit matrix"""
@@ -45,20 +43,18 @@ class VocabTree:
 
 
 def train_voctree(
-    filenames: List[str], 
-    image_descriptor_extractor: cv2.Feature2D, 
-    clusters: int, 
-    max_level: int
+        filenames: List[str],
+        image_descriptor_extractor: cv2.Feature2D,
+        clusters: int,
+        max_level: int
 ) -> VocabTree:
     """
     Trains vocabulary tree based on input images
-    
     Args:
         filenames: List of image file paths
         image_descriptor_extractor: OpenCV feature extractor (e.g., ORB, SIFT)
         clusters: Number of clusters for tree branching
         max_level: Maximum depth of the vocabulary tree
-        
     Returns:
         VocabTree object containing the root node and database visit matrix
     """
@@ -67,58 +63,58 @@ def train_voctree(
 
     # Set number of images
     Node.set_total_images(len(filenames))
-    
+
     # Read all images and extract features
     images = read_images(filenames, black_white=True)
-    print('number of images='+str(len(images)))
-    
+    print('number of images=' + str(len(images)))
+
     # Extract descriptors from database images
     db_descriptors_map = image_descriptors_map(images, descr_extractor=image_descriptor_extractor)
     db_descriptors = image_descriptors(db_descriptors_map)
-    print('number of descriptors='+str(db_descriptors.shape[0]))
-    
+    print('number of descriptors=' + str(db_descriptors.shape[0]))
+
     # Create root node
     root = Node(root=True)
-    
+
     # Build tree structure
     root.children = assembly_tree(
-        descriptors=db_descriptors, 
-        k=clusters, 
-        dissimilarity=orb_dissimilarity, 
-        average=orb_average, 
+        descriptors=db_descriptors,
+        k=clusters,
+        dissimilarity=orb_dissimilarity,
+        average=orb_average,
         level=max_level
     )
     print('number of nodes:' + str(len(Node.nodes())))
-    
+
     # Update weights in the tree
     for imgkey in db_descriptors_map:
         print("update weights for image = " + str(imgkey))
         update_weights(root, imgkey, db_descriptors_map[imgkey], dissimilarity=orb_dissimilarity)
-    
+
     # Create database visit matrix
     db_visit_matrix = dbimg_visit_tree(
-        root, 
-        images, 
-        dissimilarity=orb_dissimilarity, 
-        with_weight=True, 
+        root,
+        images,
+        dissimilarity=orb_dissimilarity,
+        with_weight=True,
         descr_extractor=image_descriptor_extractor
     )
-    print('database image vector size = '+str(db_visit_matrix.shape))
-    
+    print('database image vector size = ' + str(db_visit_matrix.shape))
+
     return VocabTree(root=root, visit_matrix=db_visit_matrix, database_filenames=filenames)
 
 
 def tree_traversal(node: Node) -> None:
-    print('node.images='+str(node.images) + ' node.children='+str(len(node.children)))
+    print('node.images=' + str(node.images) + ' node.children=' + str(len(node.children)))
     for child_id in node.children:
-        print('node.descriptor='+str(hash(child_id)))
+        print('node.descriptor=' + str(hash(child_id)))
         tree_traversal(node.children[child_id])
 
 
-def assembly_tree(descriptors: np.ndarray, k: int, 
-                 dissimilarity: Callable[[np.ndarray, np.ndarray], float], 
-                 average: Callable[[np.ndarray], np.ndarray], 
-                 level: int) -> Dict[bytes, Node]:
+def assembly_tree(descriptors: np.ndarray, k: int,
+                  dissimilarity: Callable[[np.ndarray, np.ndarray], float],
+                  average: Callable[[np.ndarray], np.ndarray],
+                  level: int) -> Dict[bytes, Node]:
     level -= 1
     if level < 0:
         return {}
@@ -134,20 +130,20 @@ def assembly_tree(descriptors: np.ndarray, k: int,
             centroid_descriptors = np.array(descriptors[centroid_labels[centroid_id]])
             node.children = assembly_tree(centroid_descriptors, k, dissimilarity, average, level)
             children[centroid.tobytes()] = node
-            
+
     return children
 
 
-def visit_tree(root: Node, descriptors: np.ndarray, 
-              dissimilarity: Callable[[np.ndarray, np.ndarray], float], 
-              with_weight: bool = False) -> np.ndarray:
+def visit_tree(root: Node, descriptors: np.ndarray,
+               dissimilarity: Callable[[np.ndarray, np.ndarray], float],
+               with_weight: bool = False) -> np.ndarray:
     visit_path = np.zeros(len(Node.nodes()))
     for descriptor in descriptors:
         _descriptor_visit_tree(root, descriptor, dissimilarity, visit_path)
-        
+
     for idx, visit in enumerate(visit_path):
         visit_path[idx] /= len(descriptors) if len(descriptors) > 0 else 1
-        
+
     if with_weight:
         for idx, visit in enumerate(visit_path):
             visit_path[idx] *= Node.nodes()[idx].weight
@@ -155,17 +151,17 @@ def visit_tree(root: Node, descriptors: np.ndarray,
     return visit_path
 
 
-def _descriptor_visit_tree(node: Node, descriptor: np.ndarray, 
-                          dissimilarity: Callable[[np.ndarray, np.ndarray], float], 
-                          visit_path: np.ndarray) -> np.ndarray:
+def _descriptor_visit_tree(node: Node, descriptor: np.ndarray,
+                           dissimilarity: Callable[[np.ndarray, np.ndarray], float],
+                           visit_path: np.ndarray) -> np.ndarray:
     if node.children == {}:
         return visit_path
-    
+
     arr_descriptors = list(map(_convert_to_img_descriptor, node.children.keys()))
     nearest_descriptor = _nearest_descriptor(descriptor, arr_descriptors, dissimilarity)
     child_node = node.children[nearest_descriptor.tobytes()]
     visit_path[child_node.index] += 1
-    
+
     return _descriptor_visit_tree(child_node, descriptor, dissimilarity, visit_path)
 
 
@@ -188,8 +184,8 @@ def score_calculation(query_vector: np.ndarray, dbimg_vector: np.ndarray) -> flo
 #
 # descr_extractor: image descriptor extractor (as default ORB)
 #
-def dbimg_visit_tree(root: Node, cvmat_images: List[np.ndarray], 
-                     dissimilarity: Callable[[np.ndarray, np.ndarray], float], 
+def dbimg_visit_tree(root: Node, cvmat_images: List[np.ndarray],
+                     dissimilarity: Callable[[np.ndarray, np.ndarray], float],
                      with_weight: bool, descr_extractor: Any) -> np.ndarray:
     # list of visit per database image
     dbimg_vectors: List[np.ndarray] = []
@@ -197,11 +193,11 @@ def dbimg_visit_tree(root: Node, cvmat_images: List[np.ndarray],
         keypoints, descriptors = descr_extractor.detectAndCompute(img, None)
         if descriptors is None:
             descriptors = np.array([])
-        
+
         # create visit vector from image and add to list
         img_vector = visit_tree(root, descriptors, dissimilarity, with_weight)
         dbimg_vectors.append(img_vector)
-        
+
     return np.array(dbimg_vectors)
 
 

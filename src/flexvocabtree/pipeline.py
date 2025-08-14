@@ -7,10 +7,10 @@ from flexvocabtree.image import image_descriptors_from_file
 
 class Pipeline:
     def __init__(
-        self, 
-        vocab_tree: VocabTree, 
-        descr_extractor: cv2.Feature2D, 
-        dissimilarity: Callable[[np.ndarray, np.ndarray], float]
+            self,
+            vocab_tree: VocabTree,
+            descr_extractor: cv2.Feature2D,
+            dissimilarity: Callable[[np.ndarray, np.ndarray], float]
     ):
         self._vocab_tree = vocab_tree
         self._descr_extractor = descr_extractor
@@ -19,9 +19,9 @@ class Pipeline:
     def execute(self, query_file: str) -> Dict[int, str]:
         query_descriptors = image_descriptors_from_file(query_file, descr_extractor=self._descr_extractor)
         query_vector = visit_tree(
-            self._vocab_tree.root, 
-            descriptors=query_descriptors, 
-            dissimilarity=self._dissimilarity, 
+            self._vocab_tree.root,
+            descriptors=query_descriptors,
+            dissimilarity=self._dissimilarity,
             with_weight=True)
 
         scores = {}

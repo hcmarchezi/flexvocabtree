@@ -118,7 +118,7 @@ def test_update_weights_nested_children():
             return 0.0
         elif np.allclose(d1, np.array([30, 31, 32])) and np.allclose(d2, grandchild_descriptor):
             return 0.0
-        elif np.allclose(d1, np.array([30, 31, 32])) and np.allclose(d2, child_descriptor): # This descriptor is passed down
+        elif np.allclose(d1, np.array([30, 31, 32])) and np.allclose(d2, child_descriptor):
             return 0.0
         return 100.0
 

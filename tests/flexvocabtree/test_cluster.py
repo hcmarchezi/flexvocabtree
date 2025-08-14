@@ -15,8 +15,8 @@ def simple_average(data_points: np.ndarray) -> np.ndarray:
 
 def test_clustering_with_simple_data_k2_converges():
     data = np.array([
-        [1.0, 1.0], [1.1, 1.1], [1.2, 1.2], 
-        [5.0, 5.0], [5.1, 5.1], [5.2, 5.2]], 
+        [1.0, 1.0], [1.1, 1.1], [1.2, 1.2],
+        [5.0, 5.0], [5.1, 5.1], [5.2, 5.2]],
         dtype=np.float64)
     k = 2
     stop_criteria = 0.01
@@ -30,7 +30,7 @@ def test_clustering_with_simple_data_k2_converges():
 
     # Check if the final centroids are close to the expected cluster means
     assert np.allclose(sorted(centroids.tolist()), sorted([expected_c1.tolist(), expected_c2.tolist()]), atol=0.1)
-    
+
     # Map which centroid got which original group
     # case 1 - cluster0 = [0,1,2] and cluster1 = [3,4,5]
     group1_points_in_cluster0 = all(idx in labels[0] for idx in [0, 1, 2])
@@ -81,7 +81,7 @@ def test_clustering_empty_data_returns_empty():
     data = np.array([], dtype=np.float64).reshape(0, 2)  # Empty data with 2 features
     k = 1
     stop_criteria = 0.1
-    
+
     # Test expecting an error for this scenario as per current implementation
     with pytest.raises(ValueError):
         clustering(data, k, euclidean_dissimilarity, simple_average, stop_criteria)
