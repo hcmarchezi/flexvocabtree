@@ -141,14 +141,27 @@ def visit_tree(root: Node, descriptors: np.ndarray,
     for descriptor in descriptors:
         _descriptor_visit_tree(root, descriptor, dissimilarity, visit_path)
 
-    for idx, visit in enumerate(visit_path):
-        visit_path[idx] /= len(descriptors) if len(descriptors) > 0 else 1
+    tf_normalized_visits = _apply_tf_normalization(visit_path)
 
     if with_weight:
-        for idx, visit in enumerate(visit_path):
-            visit_path[idx] *= Node.nodes()[idx].weight
+        # Apply IDF weighting to TF-normalized visits (TF-IDF)
+        for idx, tf_visit in enumerate(tf_normalized_visits):
+            tf_normalized_visits[idx] *= Node.nodes()[idx].weight
 
-    return visit_path
+    return tf_normalized_visits
+
+
+def _apply_tf_normalization(visit_path: np.ndarray) -> np.ndarray:
+    tf_normalized = np.zeros_like(visit_path, dtype=np.float64)
+    
+    for idx, count in enumerate(visit_path):
+        if count > 0:
+            # Log normalization: 1 + log(count)
+            tf_normalized[idx] = 1.0 + np.log(count)
+        else:
+            tf_normalized[idx] = 0.0
+    
+    return tf_normalized
 
 
 def _descriptor_visit_tree(node: Node, descriptor: np.ndarray,
