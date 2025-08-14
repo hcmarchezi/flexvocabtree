@@ -1,10 +1,11 @@
 import numpy as np
-from typing import List, Optional, Callable, Any
+from typing import List, Optional, Callable
 from flexvocabtree.node import Node
 
 
-def update_weights(node: Node, img_idx: int, arr_descriptors: np.ndarray, 
-                 dissimilarity: Callable[[np.ndarray, np.ndarray], float]) -> None:
+def update_weights(
+        node: Node, img_idx: int, arr_descriptors: np.ndarray,
+        dissimilarity: Callable[[np.ndarray, np.ndarray], float]) -> None:
     for descriptor in arr_descriptors:
         _update_weights_with_descriptor(node, img_idx, descriptor, dissimilarity)
 
@@ -32,8 +33,10 @@ def _convert_to_img_descriptor(descriptor_bytes: bytes) -> np.ndarray:
     return np.frombuffer(descriptor_bytes, dtype=np.uint8)
 
 
-def _update_weights_with_descriptor(node: Node, img_idx: int, descriptor: np.ndarray, 
-                                   dissimilarity: Callable[[np.ndarray, np.ndarray], float]) -> None:
+def _update_weights_with_descriptor(
+        node: Node, img_idx: int, descriptor: np.ndarray,
+        dissimilarity: Callable[[np.ndarray, np.ndarray], float]
+) -> None:
     if len(node.children) > 0:
         arr_descriptors = list(map(_convert_to_img_descriptor, node.children.keys()))
         nearest_descriptor = _nearest_descriptor(descriptor, arr_descriptors, dissimilarity)

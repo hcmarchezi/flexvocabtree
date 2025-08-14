@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 from flexvocabtree.weights import update_weights
 from flexvocabtree.node import Node
 

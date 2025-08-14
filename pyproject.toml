@@ -10,6 +10,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "columnar>=1.4.1",
+    "flake8>=7.3.0",
     "matplotlib>=3.10.1",
     "mypy>=1.15.0",
     "opencv-python>=4.11.0.86",
@@ -19,3 +20,6 @@ dependencies = [
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.flake8]
+max-line-length = 120

@@ -1,27 +1,18 @@
 import cv2 
 import numpy as np
 import os
-from typing import Dict, List, Tuple, Callable, Optional, Any, Set, Union, Sequence
-from flexvocabtree.cluster import clustering
-from flexvocabtree.weights import update_weights, _convert_to_img_descriptor, _nearest_descriptor
-from flexvocabtree.node import Node
-from flexvocabtree.image import read_images, image_descriptors_map, image_descriptors, image_descriptors_from_file
-from flexvocabtree.vocabulary_tree import (
-    assembly_tree,
-    visit_tree,
-    score_calculation,
-    dbimg_visit_tree,
-    orb_dissimilarity,
-    orb_average,
-    VocabTree,
-    train_voctree
-)
+from typing import Dict, List
+from flexvocabtree.image import read_images, image_descriptors_map, image_descriptors_from_file
+from flexvocabtree.vocabulary_tree import orb_dissimilarity, train_voctree
 from flexvocabtree.pipeline import Pipeline
 from columnar import columnar
 
 
-
-def brute_force_image_descriptors(query_file: str, filenames: List[str], descr_extractor: cv2.Feature2D) -> Dict[float, str]:
+def brute_force_image_descriptors(
+        query_file: str,
+        filenames: List[str],
+        descr_extractor: cv2.Feature2D
+) -> Dict[float, str]:
     # Read the query image and extract its descriptors
     query_img_descriptors = image_descriptors_from_file(query_file, descr_extractor=descr_extractor)
     
@@ -47,13 +38,13 @@ def brute_force_image_descriptors(query_file: str, filenames: List[str], descr_e
 
 
 def main():
-    filenames = list([ './imgdb/' + filename for filename in os.listdir('./imgdb/') ])
+    filenames = list(['./imgdb/' + filename for filename in os.listdir('./imgdb/')])
     print('database filenames')
     print('==================')
     print(str(filenames))
     print()
     
-    query_files = list([ './query/' + filename for filename in os.listdir('./query/') ])
+    query_files = list(['./query/' + filename for filename in os.listdir('./query/')])
     print('query filenames')
     print('===============')
     print(str(query_files))
@@ -75,21 +66,23 @@ def main():
         descr_extractor = orb_extractor,
         dissimilarity = orb_dissimilarity
     )
-    
-    
+
     for idx_file, query_file in enumerate(query_files): 
         scores = pipeline.execute(query_file)    
-        voctree_results = [ scores[score] for score in sorted(scores.keys()) ]
+        voctree_results = [scores[score] for score in sorted(scores.keys())]
         
-        ground_truth = brute_force_image_descriptors(query_file=query_file, filenames=filenames, descr_extractor=orb_extractor)
-        ground_truth_results = [ ground_truth[score] for score in sorted(ground_truth.keys()) ]
+        ground_truth = brute_force_image_descriptors(
+            query_file=query_file,
+            filenames=filenames,
+            descr_extractor=orb_extractor
+        )
+        ground_truth_results = [ground_truth[score] for score in sorted(ground_truth.keys())]
 
         data = []
         for idx in range(len(voctree_results)):
-            data.append([ query_file, voctree_results[idx], ground_truth_results[idx] ])
+            data.append([query_file, voctree_results[idx], ground_truth_results[idx]])
         table = columnar(data, headers=['Query File', 'VocabTree', 'GroundTruth'])
         print(table)
-
 
 
 if __name__ == "__main__":

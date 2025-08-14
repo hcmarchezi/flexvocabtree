@@ -1,11 +1,10 @@
 import cv2 
 import numpy as np
-import os
-from typing import Dict, List, Tuple, Callable, Optional, Any, Set, Union, Sequence
+from typing import Dict, List, Callable, Any
 from flexvocabtree.cluster import clustering
 from flexvocabtree.weights import update_weights, _convert_to_img_descriptor, _nearest_descriptor
 from flexvocabtree.node import Node
-from flexvocabtree.image import read_images, image_descriptors_map, image_descriptors, image_descriptors_from_file
+from flexvocabtree.image import read_images, image_descriptors_map, image_descriptors
 
 
 class VocabTree:
@@ -122,12 +121,10 @@ def assembly_tree(descriptors: np.ndarray, k: int,
                  level: int) -> Dict[bytes, Node]:
     level -= 1
     if level < 0:
-        #print('deepest level: stop criteria')
         return {}
     elif len(descriptors) == 1:
-        #print('single descriptor: stop criteria')
         key = descriptors[0].tobytes()
-        return { key: Node() }
+        return {key: Node()}
 
     centroids, centroid_labels = clustering(descriptors, k, dissimilarity, average)
     children: Dict[bytes, Node] = {}
@@ -220,4 +217,3 @@ def orb_average(data: np.ndarray) -> np.ndarray:
     avg_array = np.round(avg_array).astype(np.uint8)
     avg_data = np.packbits(avg_array)
     return avg_data
-

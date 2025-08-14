@@ -20,7 +20,7 @@ def test_clustering_with_simple_data_k2_converges():
         dtype=np.float64)
     k = 2
     stop_criteria = 0.01
-    np.random.seed(42) # This makes _choose_initial_centroids deterministic
+    np.random.seed(42)  # This makes _choose_initial_centroids deterministic
 
     centroids, labels = clustering(data, k, euclidean_dissimilarity, simple_average, stop_criteria)
 
@@ -53,7 +53,7 @@ def test_clustering_single_point_k1():
     data = np.array([[10.0, 10.0]], dtype=np.float64)
     k = 1
     stop_criteria = 0.01
-    np.random.seed(42) # for _choose_initial_centroids
+    np.random.seed(42)  # for _choose_initial_centroids
 
     centroids, labels = clustering(data, k, euclidean_dissimilarity, simple_average, stop_criteria)
 
@@ -66,7 +66,7 @@ def test_clustering_k_equals_data_size():
     data = np.array([[1.0, 1.0], [2.0, 2.0], [3.0, 3.0]], dtype=np.float64)
     k = 3
     stop_criteria = 0.01
-    np.random.seed(42) # for _choose_initial_centroids
+    np.random.seed(42)  # for _choose_initial_centroids
 
     centroids, labels = clustering(data, k, euclidean_dissimilarity, simple_average, stop_criteria)
 
@@ -78,7 +78,7 @@ def test_clustering_k_equals_data_size():
 
 
 def test_clustering_empty_data_returns_empty():
-    data = np.array([], dtype=np.float64).reshape(0, 2) # Empty data with 2 features
+    data = np.array([], dtype=np.float64).reshape(0, 2)  # Empty data with 2 features
     k = 1
     stop_criteria = 0.1
     

@@ -10,7 +10,8 @@ class Pipeline:
         self, 
         vocab_tree: VocabTree, 
         descr_extractor: cv2.Feature2D, 
-        dissimilarity: Callable[[np.ndarray, np.ndarray], float]):
+        dissimilarity: Callable[[np.ndarray, np.ndarray], float]
+    ):
         self._vocab_tree = vocab_tree
         self._descr_extractor = descr_extractor
         self._dissimilarity = dissimilarity
@@ -26,5 +27,5 @@ class Pipeline:
         scores = {}
         for idx, db_item_vector in enumerate(self._vocab_tree.visit_matrix):
             scores[score_calculation(query_vector, db_item_vector)] = self._vocab_tree.database_filenames[idx]
-	
+
         return scores

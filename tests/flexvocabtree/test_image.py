@@ -1,7 +1,9 @@
 import pytest
 import cv2
 import numpy as np
-from flexvocabtree.image import read_image, read_images, image_descriptors_map, image_descriptors, image_descriptors_from_file
+from flexvocabtree.image import (
+    read_image, read_images, image_descriptors_map, image_descriptors, image_descriptors_from_file
+)
 
 
 @pytest.fixture
@@ -125,4 +127,3 @@ def test_image_descriptors_from_file_no_descriptors(mocker, mock_descr_extractor
     mock_read_image.assert_called_once_with(filename)
     mock_descr_extractor.detectAndCompute.assert_called_once()
     assert np.array_equal(descriptors, np.array([], dtype=np.uint8))
-

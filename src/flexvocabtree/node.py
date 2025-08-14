@@ -1,5 +1,6 @@
 import numpy as np
-from typing import Dict, Set, List, Union, Any
+from typing import Dict, Set, List
+
 
 class Node:
     _nodes: List['Node'] = []       # list of all created nodes
@@ -11,17 +12,19 @@ class Node:
         if not root:
             self._index: int = len(Node._nodes)
             Node._nodes.append(self) # append node to global list of nodes
-            
+
     @property
     def children(self) -> Dict[bytes, 'Node']:
         return self._children
+
     @children.setter
     def children(self, children: Dict[bytes, 'Node']) -> None:
         self._children = children
-        
+
     @property
     def images(self) -> Set[int]:
         return self._images
+
     @images.setter
     def images(self, images: Set[int]) -> None:
         self._images = images
